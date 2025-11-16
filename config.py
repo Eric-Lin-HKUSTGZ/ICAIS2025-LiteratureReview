@@ -32,7 +32,7 @@ class Config(metaclass=ConfigMeta):
         elif name == "LLM_API_KEY":
             return cls._get_env_with_fallback("SCI_MODEL_API_KEY", "LLM_API_KEY")
         elif name == "LLM_MODEL":
-            return cls._get_env_with_fallback("SCI_LLM_MODEL", "LLM_MODEL", "xxx")
+            return cls._get_env_with_fallback("SCI_LLM_MODEL", "LLM_MODEL")
         elif name == "LLM_REASONING_MODEL":
             reasoning_model = cls._get_env("SCI_LLM_REASONING_MODEL")
             if not reasoning_model:
@@ -65,7 +65,7 @@ class Config(metaclass=ConfigMeta):
         
         # Embedding配置
         elif name == "EMBEDDING_MODEL_NAME":
-            return cls._get_env_with_fallback("SCI_EMBEDDING_MODEL", "EMBEDDING_MODEL_NAME", "xxx")
+            return cls._get_env_with_fallback("SCI_EMBEDDING_MODEL", "EMBEDDING_MODEL_NAME")
         elif name == "EMBEDDING_API_ENDPOINT":
             return cls._get_env_with_fallback("SCI_EMBEDDING_BASE_URL", "EMBEDDING_API_ENDPOINT")
         elif name == "EMBEDDING_API_KEY":
@@ -101,6 +101,12 @@ class Config(metaclass=ConfigMeta):
         """验证配置是否正确"""
         if not cls.LLM_API_ENDPOINT or not cls.LLM_API_KEY:
             print("❌ LLM_API_ENDPOINT 或 LLM_API_KEY 未配置")
+            return False
+        if not cls.LLM_MODEL:
+            print("❌ LLM_MODEL (SCI_LLM_MODEL) 未配置")
+            return False
+        if not cls.EMBEDDING_MODEL_NAME:
+            print("❌ EMBEDDING_MODEL_NAME (SCI_EMBEDDING_MODEL) 未配置")
             return False
         return True
 
