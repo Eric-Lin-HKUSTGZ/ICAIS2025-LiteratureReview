@@ -300,6 +300,17 @@ CRITICAL REQUIREMENT - PAPER CITATION FORMAT:
 6. 总结：总结全文
 7. 参考文献：列出所有引用的论文，格式为 [1] [完整论文标题], [2] [完整论文标题] 等
 
+CRITICAL LENGTH REQUIREMENT:
+- 综述总长度必须在3000-4000字符之间（包括参考文献部分）
+- 每个章节都应该有充分的内容，确保综述详实、深入、全面
+- 引言部分应该详细介绍研究领域的背景和重要性，包括历史发展、核心概念和意义（400-500字符）
+- 研究现状部分应该全面综述当前研究状况，包括多个研究方向和重要成果，深入分析各方向的特点和贡献（700-900字符）
+- 主要方法部分应该详细总结主要研究方法和技术，包括技术细节、创新点和优缺点分析（600-800字符）
+- 应用领域部分应该介绍多个应用领域，每个领域都有具体说明、应用场景和实际案例（600-800字符）
+- 发展趋势部分应该深入分析研究趋势和未来方向，包括多个维度的分析、挑战和机遇（400-600字符）
+- 总结部分应该全面总结全文要点，包括主要发现和未来展望（150-200字符）
+- 参考文献部分应该列出所有引用的论文（300-500字符，取决于引用数量）
+
 IMPORTANT OUTPUT FORMAT REQUIREMENTS:
 - 使用Markdown格式
 - 直接开始综述内容，不要包含"当然"、"根据"等介绍性短语
@@ -308,7 +319,7 @@ IMPORTANT OUTPUT FORMAT REQUIREMENTS:
 - 只输出综述内容本身，从第一个章节标题开始（如"## 引言"）
 - 在正文中使用编号引用 [1], [2], [3] 等引用论文，引用编号必须从[1]开始连续编号，不能有间隔
 - 在末尾包含参考文献部分，列出所有引用的论文的完整标题，编号从[1]到[N]连续，与正文中的引用编号匹配
-- 确保内容详实、逻辑清晰"""
+- 确保内容详实、逻辑清晰、深入透彻"""
     else:
         prompt = f"""You are an expert in academic research. Please generate a complete literature review based on the following information.
 
@@ -345,6 +356,17 @@ Please generate a structured literature review including:
 6. Conclusion: Summarize the entire review
 7. References: List all cited papers in the format [1] [Full Paper Title], [2] [Full Paper Title], etc.
 
+CRITICAL LENGTH REQUIREMENT:
+- The total length of the review MUST be between 3000-4000 characters (including the References section)
+- Each section should have substantial content to ensure the review is comprehensive, in-depth, and thorough
+- Introduction section should provide detailed background and importance of the research field, including historical development, core concepts, and significance (400-500 characters)
+- Current Research Status section should comprehensively review the current state of research, including multiple research directions and important achievements, with in-depth analysis of characteristics and contributions of each direction (700-900 characters)
+- Main Methods section should provide detailed summary of main research methods and techniques, including technical details, innovations, and analysis of advantages and disadvantages (600-800 characters)
+- Application Domains section should introduce multiple application domains, with specific descriptions, application scenarios, and practical cases for each domain (600-800 characters)
+- Development Trends section should provide in-depth analysis of research trends and future directions, including multi-dimensional analysis, challenges, and opportunities (400-600 characters)
+- Conclusion section should comprehensively summarize the key points of the entire review, including main findings and future prospects (150-200 characters)
+- References section should list all cited papers (300-500 characters, depending on the number of citations)
+
 IMPORTANT OUTPUT FORMAT REQUIREMENTS:
 - Use Markdown format
 - Start directly with the review content. Do NOT include any introductory phrases such as "Of course", "Certainly", "Based on", "According to", etc.
@@ -353,7 +375,7 @@ IMPORTANT OUTPUT FORMAT REQUIREMENTS:
 - Output ONLY the review content itself, beginning with the first section title (e.g., "## Introduction")
 - Use numbered citations [1], [2], [3], etc. in the body text when referencing papers. Citations MUST be numbered sequentially from [1] with NO gaps
 - Include a References section at the end with full paper titles, numbered sequentially from [1] to [N] with NO gaps, matching the citation numbers used in the body text
-- Ensure the content is detailed and logically clear"""
+- Ensure the content is detailed, logically clear, comprehensive, and in-depth"""
     
     return prompt
 

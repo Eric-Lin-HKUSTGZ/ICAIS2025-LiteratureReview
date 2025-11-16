@@ -38,7 +38,12 @@ class LiteratureAnalyzer:
     def analyze_domain(self, query: str, keywords: List[str]) -> str:
         """分析研究领域"""
         prompt = get_domain_analysis_prompt(query, keywords, self.language)
-        domain_analysis = self.llm_client.get_response(prompt=prompt)
+        # 使用推理模型进行高质量的领域分析
+        domain_analysis = self.llm_client.get_response(
+            prompt=prompt,
+            use_reasoning_model=True,
+            timeout=self.config.DOMAIN_ANALYSIS_TIMEOUT * 2
+        )
         return domain_analysis
     
     def classify_papers(self, papers: List[Dict], query: str) -> List[Dict]:
@@ -98,7 +103,12 @@ class LiteratureAnalyzer:
         """总结单篇论文"""
         try:
             prompt = get_paper_summary_prompt(paper, query, self.language)
-            summary = self.llm_client.get_response(prompt=prompt)
+            # 使用推理模型进行高质量的论文总结
+            summary = self.llm_client.get_response(
+                prompt=prompt,
+                use_reasoning_model=True,
+                timeout=self.config.PAPER_SUMMARY_TIMEOUT
+            )
             return summary
         except Exception as e:
             print(f"⚠️  单篇论文总结失败: {e}")
