@@ -13,7 +13,7 @@ class ReviewGenerator:
         self.llm_client = llm_client
         self.language = language
     
-    def generate_review(self, summaries: List[str], topics: str, trends: str, query: str, papers: List[Dict]) -> str:
+    def generate_review(self, summaries: List[str], topics: str, trends: str, query: str, papers: List[Dict], intent_result: dict = None) -> str:
         """生成完整综述
         
         Args:
@@ -22,8 +22,9 @@ class ReviewGenerator:
             trends: 趋势分析结果
             query: 用户查询
             papers: 论文列表（包含标题等信息，用于生成参考文献）
+            intent_result: 查询意图分析结果（可选）
         """
-        prompt = get_review_generation_prompt(summaries, topics, trends, query, papers, self.language)
+        prompt = get_review_generation_prompt(summaries, topics, trends, query, papers, intent_result, self.language)
         
         # 使用推理模型生成综述
         review = self.llm_client.get_response(prompt=prompt, use_reasoning_model=True)

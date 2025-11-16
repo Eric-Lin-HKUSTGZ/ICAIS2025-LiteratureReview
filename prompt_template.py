@@ -24,10 +24,135 @@ def detect_language(text: str) -> str:
         return 'en'
 
 
-def get_keyword_extraction_prompt(query: str, language: str = 'en') -> str:
-    """关键词提取Prompt"""
+def get_query_intent_analysis_prompt(query: str, language: str = 'en') -> str:
+    """查询意图分析Prompt - 深度理解查询意图，消除歧义"""
     if language == 'zh':
-        prompt = f"""你是一位学术研究专家。请从以下用户查询中提取3-4个核心英文关键词，用于学术论文检索。
+        prompt = f"""你是一位学术研究专家。请深度分析以下用户查询的真实意图，特别关注缩写词、技术术语的歧义问题。
+
+用户查询：{query}
+
+请提供以下信息：
+
+1. 技术全称：
+   - 如果查询中包含缩写词（如VLA、LLM、NLP等），请提供该缩写词在查询上下文中的完整技术名称
+   - 如果查询中没有缩写词，请提供该技术的完整名称
+   - 例如：如果查询是"VLA技术最新发展"，在AI/机器学习领域，VLA通常指"Vision-Language Models"（视觉语言模型），而不是"Very Large Array"（甚大阵列）
+
+2. 研究领域：
+   - 明确指出该技术所属的研究领域（如人工智能、计算机视觉、自然语言处理、机器学习等）
+   - 如果可能涉及多个领域，请说明主要领域和次要领域
+
+3. 关键概念：
+   - 列出3-5个与该技术相关的核心概念和术语
+   - 这些概念应该能够帮助准确理解查询意图
+
+4. 歧义澄清：
+   - 如果查询中的术语可能存在歧义（如缩写词在不同领域有不同含义），请明确指出可能的歧义
+   - 说明在查询的上下文中，应该采用哪种解释
+   - 例如：VLA在射电天文学中指"Very Large Array"，但在AI领域指"Vision-Language Models"
+
+5. 推荐关键词：
+   - 基于以上分析，推荐3-5个用于学术论文检索的英文关键词
+   - 关键词应该使用技术全称或明确的术语，避免使用可能产生歧义的缩写词
+   - 关键词应该包含领域限定词，以提高检索准确性
+   - 例如：如果查询是"VLA技术最新发展"，推荐关键词应该是"vision language models"、"multimodal learning"、"visual language understanding"等，而不是"VLA"
+
+请按照以下格式输出：
+技术全称：[完整技术名称]
+研究领域：[领域名称]
+关键概念：[概念1, 概念2, 概念3]
+歧义澄清：[澄清说明]
+推荐关键词：[关键词1, 关键词2, 关键词3, 关键词4]"""
+    else:
+        prompt = f"""You are an expert in academic research. Please deeply analyze the true intent of the following user query, with special attention to ambiguity issues with abbreviations and technical terms.
+
+User Query: {query}
+
+Please provide the following information:
+
+1. Full Name:
+   - If the query contains abbreviations (e.g., VLA, LLM, NLP), please provide the full technical name of the abbreviation in the query context
+   - If the query has no abbreviations, please provide the full name of the technology
+   - Example: If the query is "latest developments in VLA technology", in the AI/machine learning field, VLA typically refers to "Vision-Language Models", not "Very Large Array"
+
+2. Research Domain:
+   - Clearly identify the research domain this technology belongs to (e.g., artificial intelligence, computer vision, natural language processing, machine learning)
+   - If multiple domains are possible, please indicate the primary and secondary domains
+
+3. Key Concepts:
+   - List 3-5 core concepts and terms related to this technology
+   - These concepts should help accurately understand the query intent
+
+4. Disambiguation:
+   - If terms in the query may have ambiguity (e.g., abbreviations with different meanings in different fields), please clearly identify possible ambiguities
+   - Explain which interpretation should be adopted in the query context
+   - Example: VLA refers to "Very Large Array" in radio astronomy, but "Vision-Language Models" in AI
+
+5. Recommended Keywords:
+   - Based on the above analysis, recommend 3-5 English keywords for academic paper retrieval
+   - Keywords should use full technical names or clear terms, avoiding abbreviations that may cause ambiguity
+   - Keywords should include domain qualifiers to improve retrieval accuracy
+   - Example: If the query is "latest developments in VLA technology", recommended keywords should be "vision language models", "multimodal learning", "visual language understanding", etc., not "VLA"
+
+Please output in the following format:
+Full Name: [Full technical name]
+Research Domain: [Domain name]
+Key Concepts: [Concept1, Concept2, Concept3]
+Disambiguation: [Clarification]
+Recommended Keywords: [Keyword1, Keyword2, Keyword3, Keyword4]"""
+    
+    return prompt
+
+
+def get_keyword_extraction_prompt(query: str, intent_result: dict = None, language: str = 'en') -> str:
+    """关键词提取Prompt - 基于意图分析结果生成更准确的关键词"""
+    if intent_result:
+        # 如果有意图分析结果，使用推荐的关键词作为基础
+        recommended_keywords = intent_result.get("recommended_keywords", [])
+        full_name = intent_result.get("full_name", "")
+        domain = intent_result.get("domain", "")
+        disambiguation = intent_result.get("disambiguation", "")
+        
+        if language == 'zh':
+            prompt = f"""你是一位学术研究专家。请基于以下查询意图分析结果，提取3-4个核心英文关键词用于学术论文检索。
+
+用户查询：{query}
+
+查询意图分析结果：
+- 技术全称：{full_name}
+- 研究领域：{domain}
+- 歧义澄清：{disambiguation}
+- 推荐关键词：{', '.join(recommended_keywords) if recommended_keywords else '无'}
+
+要求：
+1. 优先使用意图分析中推荐的关键词，但可以根据需要进行调整
+2. 确保关键词使用技术全称或明确术语，避免可能产生歧义的缩写词
+3. 关键词应该包含领域限定词，以提高检索准确性
+4. 提取3-4个核心英文关键词，用逗号分隔
+
+请只返回关键词，用逗号分隔，不要有其他文字。"""
+        else:
+            prompt = f"""You are an expert in academic research. Please extract 3-4 core English keywords for academic paper retrieval based on the following query intent analysis.
+
+User Query: {query}
+
+Query Intent Analysis:
+- Full Name: {full_name}
+- Research Domain: {domain}
+- Disambiguation: {disambiguation}
+- Recommended Keywords: {', '.join(recommended_keywords) if recommended_keywords else 'None'}
+
+Requirements:
+1. Prioritize the recommended keywords from the intent analysis, but adjust as needed
+2. Ensure keywords use full technical names or clear terms, avoiding abbreviations that may cause ambiguity
+3. Keywords should include domain qualifiers to improve retrieval accuracy
+4. Extract 3-4 core English keywords, separated by commas
+
+Please return only the keywords, separated by commas, without any other text."""
+    else:
+        # 如果没有意图分析结果，使用原来的prompt
+        if language == 'zh':
+            prompt = f"""你是一位学术研究专家。请从以下用户查询中提取3-4个核心英文关键词，用于学术论文检索。
 
 用户查询：{query}
 
@@ -36,10 +161,11 @@ def get_keyword_extraction_prompt(query: str, language: str = 'en') -> str:
 2. 关键词应该是名词或名词短语
 3. 关键词应该能够准确反映用户感兴趣的研究领域
 4. 关键词应该适合用于学术论文检索（如Semantic Scholar、OpenAlex等）
+5. 如果查询中包含缩写词，请使用技术全称而非缩写词
 
 请只返回关键词，用逗号分隔，不要有其他文字。例如：transformer models, attention mechanism, deep learning"""
-    else:
-        prompt = f"""You are an expert in academic research. Please extract 3-4 core English keywords from the following user query for academic paper retrieval.
+        else:
+            prompt = f"""You are an expert in academic research. Please extract 3-4 core English keywords from the following user query for academic paper retrieval.
 
 User Query: {query}
 
@@ -48,17 +174,96 @@ Requirements:
 2. Keywords should be nouns or noun phrases
 3. Keywords should accurately reflect the research area the user is interested in
 4. Keywords should be suitable for academic paper retrieval (e.g., Semantic Scholar, OpenAlex)
+5. If the query contains abbreviations, use full technical names instead of abbreviations
 
 Please return only the keywords, separated by commas, without any other text. Example: transformer models, attention mechanism, deep learning"""
     
     return prompt
 
 
-def get_domain_analysis_prompt(query: str, keywords: list, language: str = 'en') -> str:
-    """领域分析Prompt"""
+def get_domain_analysis_prompt(query: str, keywords: list, intent_result: dict = None, language: str = 'en') -> str:
+    """领域分析Prompt - 增强版，要求输出技术全称、相关领域、关键概念、可能的歧义澄清"""
     keywords_str = ", ".join(keywords)
-    if language == 'zh':
-        prompt = f"""你是一位学术研究专家。请分析以下用户查询，理解其研究领域和主题范围。
+    
+    if intent_result:
+        full_name = intent_result.get("full_name", "")
+        domain = intent_result.get("domain", "")
+        key_concepts = intent_result.get("key_concepts", "")
+        disambiguation = intent_result.get("disambiguation", "")
+        
+        if language == 'zh':
+            prompt = f"""你是一位学术研究专家。请基于以下信息，深入分析用户查询的研究领域和主题范围。
+
+用户查询：{query}
+提取的关键词：{keywords_str}
+
+查询意图分析结果：
+- 技术全称：{full_name}
+- 研究领域：{domain}
+- 关键概念：{key_concepts}
+- 歧义澄清：{disambiguation}
+
+请提供以下内容：
+1. 研究领域的详细描述（100-200字）
+   - 包括该领域的历史发展、核心概念和意义
+   - 说明该领域在学术研究和实际应用中的重要性
+
+2. 主要研究主题和子领域
+   - 列出3-5个主要研究主题
+   - 说明每个主题的核心内容和研究方向
+
+3. 技术全称和常见缩写
+   - 明确说明该技术的完整名称
+   - 列出常见的缩写形式（如果有）
+   - 说明在不同上下文中可能存在的歧义
+
+4. 关键概念和技术术语
+   - 列出5-8个与该领域相关的核心概念和技术术语
+   - 简要说明每个概念的含义和重要性
+
+5. 可能的歧义和澄清
+   - 如果该技术或术语在不同领域有不同含义，请明确指出
+   - 说明在用户查询的上下文中，应该采用哪种解释
+
+请使用中文回答，确保内容详实、准确。"""
+        else:
+            prompt = f"""You are an expert in academic research. Please deeply analyze the research domain and topic scope of the user query based on the following information.
+
+User Query: {query}
+Extracted Keywords: {keywords_str}
+
+Query Intent Analysis:
+- Full Name: {full_name}
+- Research Domain: {domain}
+- Key Concepts: {key_concepts}
+- Disambiguation: {disambiguation}
+
+Please provide the following:
+1. Detailed description of the research domain (100-200 words)
+   - Include historical development, core concepts, and significance of this field
+   - Explain the importance of this field in academic research and practical applications
+
+2. Main research topics and sub-domains
+   - List 3-5 main research topics
+   - Explain the core content and research directions of each topic
+
+3. Full technical name and common abbreviations
+   - Clearly state the full name of the technology
+   - List common abbreviations (if any)
+   - Explain possible ambiguities in different contexts
+
+4. Key concepts and technical terms
+   - List 5-8 core concepts and technical terms related to this field
+   - Briefly explain the meaning and importance of each concept
+
+5. Possible ambiguities and clarifications
+   - If the technology or term has different meanings in different fields, please clearly identify them
+   - Explain which interpretation should be adopted in the user query context
+
+Please respond in English, ensuring the content is detailed and accurate."""
+    else:
+        if language == 'zh':
+            prompt = f"""你是一位学术研究专家。请分析以下用户查询，理解其研究领域和主题范围。
 
 用户查询：{query}
 提取的关键词：{keywords_str}
@@ -67,10 +272,13 @@ def get_domain_analysis_prompt(query: str, keywords: list, language: str = 'en')
 1. 研究领域的描述（100-200字）
 2. 主要研究主题和子领域
 3. 该领域的重要性
+4. 技术全称和常见缩写（如果查询中包含缩写词）
+5. 关键概念和技术术语
+6. 可能的歧义和澄清
 
 请使用中文回答。"""
-    else:
-        prompt = f"""You are an expert in academic research. Please analyze the following user query to understand its research domain and topic scope.
+        else:
+            prompt = f"""You are an expert in academic research. Please analyze the following user query to understand its research domain and topic scope.
 
 User Query: {query}
 Extracted Keywords: {keywords_str}
@@ -79,6 +287,9 @@ Please provide:
 1. Description of the research domain (100-200 words)
 2. Main research topics and sub-domains
 3. Importance of this field
+4. Full technical name and common abbreviations (if the query contains abbreviations)
+5. Key concepts and technical terms
+6. Possible ambiguities and clarifications
 
 Please respond in English."""
     
@@ -251,7 +462,73 @@ Please respond in English."""
     return prompt
 
 
-def get_review_generation_prompt(summaries: list, topics: str, trends: str, query: str, papers: list, language: str = 'en') -> str:
+def get_paper_validation_prompt(papers: list, query: str, intent_result: dict, language: str = 'en') -> str:
+    """论文验证Prompt - 验证检索到的论文是否与查询意图匹配"""
+    papers_text = ""
+    for i, paper in enumerate(papers[:20], 1):  # 限制论文数量
+        title = paper.get('title', '')
+        abstract = paper.get('abstract', '') or ''
+        if len(abstract) > 300:
+            abstract = abstract[:300] + "..."
+        papers_text += f"\n论文 {i}:\n标题: {title}\n摘要: {abstract}\n"
+    
+    full_name = intent_result.get("full_name", "")
+    domain = intent_result.get("domain", "")
+    disambiguation = intent_result.get("disambiguation", "")
+    
+    if language == 'zh':
+        prompt = f"""你是一位学术研究专家。请验证以下检索到的论文是否与用户查询意图匹配。
+
+用户查询：{query}
+
+查询意图分析结果：
+- 技术全称：{full_name}
+- 研究领域：{domain}
+- 歧义澄清：{disambiguation}
+
+检索到的论文：
+{papers_text}
+
+请：
+1. 评估每篇论文与查询意图的相关性（高/中/低）
+2. 如果论文与查询意图不匹配（例如，论文讨论的是其他领域的技术），请明确指出
+3. 如果大部分论文（超过50%）与查询意图不匹配，请说明原因
+4. 推荐是否需要调整检索策略或关键词
+
+请使用中文回答，格式如下：
+论文1: [相关性评估] [简要说明]
+论文2: [相关性评估] [简要说明]
+...
+总体评估: [是否需要重新检索] [原因]"""
+    else:
+        prompt = f"""You are an expert in academic research. Please validate whether the following retrieved papers match the user query intent.
+
+User Query: {query}
+
+Query Intent Analysis:
+- Full Name: {full_name}
+- Research Domain: {domain}
+- Disambiguation: {disambiguation}
+
+Retrieved Papers:
+{papers_text}
+
+Please:
+1. Assess the relevance of each paper to the query intent (High/Medium/Low)
+2. If a paper does not match the query intent (e.g., the paper discusses technology in other fields), please clearly identify it
+3. If most papers (more than 50%) do not match the query intent, please explain the reason
+4. Recommend whether retrieval strategy or keywords need adjustment
+
+Please respond in English, in the following format:
+Paper 1: [Relevance Assessment] [Brief Explanation]
+Paper 2: [Relevance Assessment] [Brief Explanation]
+...
+Overall Assessment: [Whether re-retrieval is needed] [Reason]"""
+    
+    return prompt
+
+
+def get_review_generation_prompt(summaries: list, topics: str, trends: str, query: str, papers: list, intent_result: dict = None, language: str = 'en') -> str:
     """综述生成Prompt"""
     summaries_text = ""
     for i, summary in enumerate(summaries, 1):
@@ -264,11 +541,30 @@ def get_review_generation_prompt(summaries: list, topics: str, trends: str, quer
         if title:
             papers_list_text += f"\n论文 {i}: {title}\n"
     
+    # 构建查询意图信息
+    intent_info = ""
+    if intent_result:
+        full_name = intent_result.get("full_name", "")
+        domain = intent_result.get("domain", "")
+        disambiguation = intent_result.get("disambiguation", "")
+        if full_name or domain or disambiguation:
+            intent_info = f"""
+查询意图分析结果（CRITICAL - 必须优先考虑）：
+- 技术全称：{full_name}
+- 研究领域：{domain}
+- 歧义澄清：{disambiguation}
+
+IMPORTANT: 你必须基于以上查询意图分析结果生成综述。如果中间步骤的结果（论文总结、主题聚类、趋势分析）与查询意图不匹配，你必须：
+1. 优先基于原始查询意图和查询意图分析结果生成综述
+2. 忽略或调整与查询意图不匹配的中间结果
+3. 确保生成的综述准确反映用户查询的真实意图
+"""
+    
     if language == 'zh':
         prompt = f"""你是一位学术研究专家。请基于以下信息生成一篇完整的文献综述。
 
 用户查询：{query}
-
+{intent_info}
 论文总结：
 {summaries_text}
 
@@ -319,12 +615,32 @@ IMPORTANT OUTPUT FORMAT REQUIREMENTS:
 - 只输出综述内容本身，从第一个章节标题开始（如"## 引言"）
 - 在正文中使用编号引用 [1], [2], [3] 等引用论文，引用编号必须从[1]开始连续编号，不能有间隔
 - 在末尾包含参考文献部分，列出所有引用的论文的完整标题，编号从[1]到[N]连续，与正文中的引用编号匹配
-- 确保内容详实、逻辑清晰、深入透彻"""
+- 确保内容详实、逻辑清晰、深入透彻
+- CRITICAL: 确保综述内容准确反映用户查询的真实意图，特别是技术全称和研究领域。如果中间结果与查询意图不匹配，必须基于查询意图重新组织内容"""
     else:
+        # Build query intent information for English
+        intent_info_en = ""
+        if intent_result:
+            full_name = intent_result.get("full_name", "")
+            domain = intent_result.get("domain", "")
+            disambiguation = intent_result.get("disambiguation", "")
+            if full_name or domain or disambiguation:
+                intent_info_en = f"""
+Query Intent Analysis Results (CRITICAL - Must prioritize):
+- Full Name: {full_name}
+- Research Domain: {domain}
+- Disambiguation: {disambiguation}
+
+IMPORTANT: You must generate the review based on the above query intent analysis results. If intermediate results (paper summaries, topic clustering, trend analysis) do not match the query intent, you must:
+1. Prioritize generating the review based on the original query intent and query intent analysis results
+2. Ignore or adjust intermediate results that do not match the query intent
+3. Ensure the generated review accurately reflects the true intent of the user query
+"""
+        
         prompt = f"""You are an expert in academic research. Please generate a complete literature review based on the following information.
 
 User Query: {query}
-
+{intent_info_en}
 Paper Summaries:
 {summaries_text}
 
@@ -375,7 +691,8 @@ IMPORTANT OUTPUT FORMAT REQUIREMENTS:
 - Output ONLY the review content itself, beginning with the first section title (e.g., "## Introduction")
 - Use numbered citations [1], [2], [3], etc. in the body text when referencing papers. Citations MUST be numbered sequentially from [1] with NO gaps
 - Include a References section at the end with full paper titles, numbered sequentially from [1] to [N] with NO gaps, matching the citation numbers used in the body text
-- Ensure the content is detailed, logically clear, comprehensive, and in-depth"""
+- Ensure the content is detailed, logically clear, comprehensive, and in-depth
+- CRITICAL: Ensure the review content accurately reflects the true intent of the user query, especially the full technical name and research domain. If intermediate results do not match the query intent, you must reorganize the content based on the query intent"""
     
     return prompt
 

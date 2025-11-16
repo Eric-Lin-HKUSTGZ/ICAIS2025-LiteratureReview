@@ -75,7 +75,7 @@ class Config(metaclass=ConfigMeta):
         
         # 文献综述配置
         elif name == "LITERATURE_REVIEW_TIMEOUT":
-            return int(cls._get_env("LITERATURE_REVIEW_TIMEOUT", "1200"))  # 20分钟总超时
+            return int(cls._get_env("LITERATURE_REVIEW_TIMEOUT", "900"))  # 15分钟总超时
         elif name == "KEYWORD_EXTRACTION_TIMEOUT":
             return int(cls._get_env("KEYWORD_EXTRACTION_TIMEOUT", "60"))  # 1分钟
         elif name == "DOMAIN_ANALYSIS_TIMEOUT":

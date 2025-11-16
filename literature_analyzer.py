@@ -1,7 +1,7 @@
 """
 文献分析器 - 负责关键词提取、领域分析、论文分类、论文总结、主题聚类、趋势分析
 """
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Tuple
 from llm_client import LLMClient
 from prompt_template import (
     get_keyword_extraction_prompt,
@@ -9,7 +9,8 @@ from prompt_template import (
     get_paper_classification_prompt,
     get_paper_summary_prompt,
     get_topic_clustering_prompt,
-    get_trend_analysis_prompt
+    get_trend_analysis_prompt,
+    get_paper_validation_prompt
 )
 from config import Config
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -23,9 +24,9 @@ class LiteratureAnalyzer:
         self.language = language
         self.config = Config
     
-    def extract_keywords(self, query: str) -> List[str]:
-        """提取关键词"""
-        prompt = get_keyword_extraction_prompt(query, self.language)
+    def extract_keywords(self, query: str, intent_result: dict = None) -> List[str]:
+        """提取关键词 - 基于意图分析结果生成更准确的关键词"""
+        prompt = get_keyword_extraction_prompt(query, intent_result, self.language)
         response = self.llm_client.get_response(prompt=prompt)
         
         # 解析关键词
@@ -35,9 +36,9 @@ class LiteratureAnalyzer:
         # 限制为3-4个关键词
         return keywords[:4]
     
-    def analyze_domain(self, query: str, keywords: List[str]) -> str:
-        """分析研究领域"""
-        prompt = get_domain_analysis_prompt(query, keywords, self.language)
+    def analyze_domain(self, query: str, keywords: List[str], intent_result: dict = None) -> str:
+        """分析研究领域 - 增强版，要求输出技术全称、相关领域、关键概念、可能的歧义澄清"""
+        prompt = get_domain_analysis_prompt(query, keywords, intent_result, self.language)
         # 使用推理模型进行高质量的领域分析
         domain_analysis = self.llm_client.get_response(
             prompt=prompt,
@@ -45,6 +46,58 @@ class LiteratureAnalyzer:
             timeout=self.config.DOMAIN_ANALYSIS_TIMEOUT * 2
         )
         return domain_analysis
+    
+    def validate_retrieved_papers(self, papers: List[Dict], query: str, intent_result: dict) -> Tuple[List[Dict], bool]:
+        """验证检索到的论文是否与查询意图匹配
+        
+        Args:
+            papers: 检索到的论文列表
+            query: 用户查询
+            intent_result: 查询意图分析结果
+        
+        Returns:
+            (validated_papers, need_reretrieval): 验证后的论文列表和是否需要重新检索
+        """
+        if not papers:
+            return [], False
+        
+        try:
+            prompt = get_paper_validation_prompt(papers, query, intent_result, self.language)
+            # 使用推理模型进行验证
+            validation_result = self.llm_client.get_response(
+                prompt=prompt,
+                use_reasoning_model=True,
+                timeout=self.config.PAPER_CLASSIFICATION_TIMEOUT * 2
+            )
+            
+            # 解析验证结果，判断是否需要重新检索
+            need_reretrieval = self._parse_validation_result(validation_result)
+            
+            # 如果不需要重新检索，返回原论文列表
+            # 如果需要重新检索，也返回原列表（由调用方决定是否重新检索）
+            return papers, need_reretrieval
+        except Exception as e:
+            # 如果验证失败，默认不重新检索
+            print(f"⚠️  论文验证失败: {e}，继续使用原论文列表")
+            return papers, False
+    
+    def _parse_validation_result(self, validation_result: str) -> bool:
+        """解析验证结果，判断是否需要重新检索"""
+        # 检查验证结果中是否包含"需要重新检索"、"re-retrieval"等关键词
+        validation_lower = validation_result.lower()
+        
+        # 中文关键词
+        if "需要重新检索" in validation_result or "需要调整" in validation_result or "不匹配" in validation_result:
+            # 进一步检查是否大部分论文不匹配
+            if "超过50%" in validation_result or "大部分" in validation_result or "多数" in validation_result:
+                return True
+        
+        # 英文关键词
+        if "re-retrieval" in validation_lower or "re-retrieve" in validation_lower or "adjust" in validation_lower:
+            if "more than 50%" in validation_lower or "most" in validation_lower or "majority" in validation_lower:
+                return True
+        
+        return False
     
     def classify_papers(self, papers: List[Dict], query: str) -> List[Dict]:
         """论文分类与筛选"""

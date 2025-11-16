@@ -16,6 +16,7 @@ from embedding_client import EmbeddingClient
 from retriever import PaperRetriever
 from literature_analyzer import LiteratureAnalyzer
 from review_generator import ReviewGenerator
+from query_intent_analyzer import QueryIntentAnalyzer
 from prompt_template import detect_language
 
 
@@ -169,12 +170,14 @@ async def _generate_review_internal(query: str) -> AsyncGenerator[str, None]:
         # 根据语言设置消息模板
         if language == 'zh':
             msg_templates = {
-                'step1': "### 📝 步骤 1/6: 关键词提取与领域分析\n\n✅ 已完成\n\n",
-                'step2': lambda n: f"### 📚 步骤 2/6: 混合检索论文\n\n✅ 已检索到 {n} 篇相关论文\n\n",
-                'step3': "### 🗂️ 步骤 3/6: 论文分类与筛选\n\n✅ 已完成\n\n",
-                'step4': "### 📄 步骤 4/6: 论文内容总结\n\n",
-                'step5': "### 🔍 步骤 5/6: 主题聚类与趋势分析\n\n",
-                'step6': "### 📋 步骤 6/6: 生成文献综述\n\n",
+                'step0': "### 🔍 步骤 0/7: 查询意图深度分析\n\n",
+                'step1': "### 📝 步骤 1/7: 关键词提取与领域分析\n\n✅ 已完成\n\n",
+                'step2': lambda n: f"### 📚 步骤 2/7: 混合检索论文\n\n✅ 已检索到 {n} 篇相关论文\n\n",
+                'step2_5': "### ✅ 步骤 2.5/7: 检索结果验证\n\n✅ 已完成\n\n",
+                'step3': "### 🗂️ 步骤 3/7: 论文分类与筛选\n\n✅ 已完成\n\n",
+                'step4': "### 📄 步骤 4/7: 论文内容总结\n\n",
+                'step5': "### 🔍 步骤 5/7: 主题聚类与趋势分析\n\n",
+                'step6': "### 📋 步骤 6/7: 生成文献综述\n\n",
                 'final_title': "## 📄 文献综述\n\n",
                 'error_no_papers': "## ❌ 错误\n\n未检索到相关论文，程序终止\n\n",
                 'error_config': "## ❌ 错误\n\n配置验证失败，请检查环境变量设置\n\n",
@@ -187,12 +190,14 @@ async def _generate_review_internal(query: str) -> AsyncGenerator[str, None]:
             }
         else:
             msg_templates = {
-                'step1': "### 📝 Step 1/6: Keyword Extraction and Domain Analysis\n\n✅ Completed\n\n",
-                'step2': lambda n: f"### 📚 Step 2/6: Hybrid Paper Retrieval\n\n✅ Retrieved {n} related papers\n\n",
-                'step3': "### 🗂️ Step 3/6: Paper Classification and Filtering\n\n✅ Completed\n\n",
-                'step4': "### 📄 Step 4/6: Paper Content Summarization\n\n",
-                'step5': "### 🔍 Step 5/6: Topic Clustering and Trend Analysis\n\n",
-                'step6': "### 📋 Step 6/6: Literature Review Generation\n\n",
+                'step0': "### 🔍 Step 0/7: Query Intent Deep Analysis\n\n",
+                'step1': "### 📝 Step 1/7: Keyword Extraction and Domain Analysis\n\n✅ Completed\n\n",
+                'step2': lambda n: f"### 📚 Step 2/7: Hybrid Paper Retrieval\n\n✅ Retrieved {n} related papers\n\n",
+                'step2_5': "### ✅ Step 2.5/7: Retrieval Result Validation\n\n✅ Completed\n\n",
+                'step3': "### 🗂️ Step 3/7: Paper Classification and Filtering\n\n✅ Completed\n\n",
+                'step4': "### 📄 Step 4/7: Paper Content Summarization\n\n",
+                'step5': "### 🔍 Step 5/7: Topic Clustering and Trend Analysis\n\n",
+                'step6': "### 📋 Step 6/7: Literature Review Generation\n\n",
                 'final_title': "## 📄 Literature Review\n\n",
                 'error_no_papers': "## ❌ Error\n\nNo related papers found. Process terminated.\n\n",
                 'error_config': "## ❌ Error\n\nConfiguration validation failed. Please check environment variables.\n\n",
@@ -240,10 +245,38 @@ async def _generate_review_internal(query: str) -> AsyncGenerator[str, None]:
         
         analyzer = LiteratureAnalyzer(llm_client, language=language)
         generator = ReviewGenerator(llm_client, language=language)
+        intent_analyzer = QueryIntentAnalyzer(llm_client, language=language)
         
-        # 步骤1: 关键词提取与领域分析
-        keywords = await asyncio.to_thread(analyzer.extract_keywords, query)
-        domain_analysis = await asyncio.to_thread(analyzer.analyze_domain, query, keywords)
+        # 步骤0: 查询意图深度分析
+        for chunk in stream_message(msg_templates['step0']):
+            yield chunk
+        
+        if language == 'zh':
+            step0_progress = "🔄 正在深度分析查询意图，消除歧义...\n\n"
+        else:
+            step0_progress = "🔄 Deeply analyzing query intent, disambiguating...\n\n"
+        
+        for chunk in stream_message(step0_progress):
+            yield chunk
+        
+        intent_result = None
+        async for item in run_with_heartbeat(
+            intent_analyzer.analyze_intent,
+            query,
+            heartbeat_interval=25
+        ):
+            if isinstance(item, tuple) and len(item) == 2 and item[0] == "RESULT":
+                intent_result = item[1]
+                break
+            else:
+                yield item
+        
+        if not intent_result:
+            intent_result = {}
+        
+        # 步骤1: 关键词提取与领域分析（基于意图分析结果）
+        keywords = await asyncio.to_thread(analyzer.extract_keywords, query, intent_result)
+        domain_analysis = await asyncio.to_thread(analyzer.analyze_domain, query, keywords, intent_result)
         for chunk in stream_message(msg_templates['step1']):
             yield chunk
         
@@ -257,8 +290,34 @@ async def _generate_review_internal(query: str) -> AsyncGenerator[str, None]:
                 yield chunk
             return
         
+        # 步骤2.5: 检索结果验证
+        validated_papers, need_reretrieval = await asyncio.to_thread(
+            analyzer.validate_retrieved_papers, papers, query, intent_result
+        )
+        
+        if need_reretrieval:
+            # 如果需要重新检索，使用意图分析结果中的推荐关键词
+            if language == 'zh':
+                reretrieval_msg = "⚠️  检测到检索结果与查询意图不匹配，正在使用优化后的关键词重新检索...\n\n"
+            else:
+                reretrieval_msg = "⚠️  Detected mismatch between retrieval results and query intent. Re-retrieving with optimized keywords...\n\n"
+            
+            for chunk in stream_message(reretrieval_msg):
+                yield chunk
+            
+            # 使用推荐关键词重新检索
+            recommended_keywords = intent_result.get("recommended_keywords", keywords)
+            if recommended_keywords:
+                papers = await asyncio.to_thread(retriever.hybrid_retrieve, query, recommended_keywords)
+                validated_papers = papers
+        else:
+            validated_papers = papers
+        
+        for chunk in stream_message(msg_templates['step2_5']):
+            yield chunk
+        
         # 步骤3: 论文分类与筛选
-        classified_papers = await asyncio.to_thread(analyzer.classify_papers, papers, query)
+        classified_papers = await asyncio.to_thread(analyzer.classify_papers, validated_papers, query)
         for chunk in stream_message(msg_templates['step3']):
             yield chunk
         
@@ -341,7 +400,7 @@ async def _generate_review_internal(query: str) -> AsyncGenerator[str, None]:
         review = None
         async for item in run_with_heartbeat(
             generator.generate_review,
-            summaries, topics or "", trends or "", query, classified_papers,
+            summaries, topics or "", trends or "", query, classified_papers, intent_result,
             heartbeat_interval=25
         ):
             if isinstance(item, tuple) and len(item) == 2 and item[0] == "RESULT":
