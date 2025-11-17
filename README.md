@@ -13,7 +13,11 @@ ICAIS2025-LiteratureReview/
 ├── retriever.py            # 论文检索模块
 ├── literature_analyzer.py  # 文献分析模块
 ├── review_generator.py     # 综述生成模块
+├── review_generator_v2.py  # 综述生成模块（Prompt v2）
+├── review_generator_v3.py  # 综述生成模块（Prompt v3）
 ├── prompt_template.py      # Prompt模板
+├── prompt_template_v2.py   # Prompt模板（v2版本）
+├── prompt_template_v3.py   # Prompt模板（v3版本，章节+引用增强）
 ├── test_api.py             # API测试脚本
 ├── requirements.txt        # 依赖包
 ├── Dockerfile              # Docker配置
