@@ -148,6 +148,7 @@ def get_literature_review_generation_prompt(query: str, knowledge_plan: str, lan
 1. **标题**
    - 使用清晰、专业的学术标题
    - 格式：技术名称 + "技术最新发展综述" 或类似表述
+   - **必须使用一级Markdown标题**（以"# "开头，例如"# 视觉语言模型技术最新发展综述"），不带任何编号
 
 2. **摘要**（300-400字）
    - 第一段：简要介绍研究领域的背景和重要性
@@ -258,8 +259,9 @@ def get_literature_review_generation_prompt(query: str, knowledge_plan: str, lan
 
 1. **Markdown格式**：
    - 使用标准Markdown格式
-   - 顶级章节标题需采用“## N 标题”形式编号（例如“## 2 技术背景”），子章节继续编号（如“### 2.1 研究背景”）
-   - “参考文献”章节标题必须写作“## 参考文献”，不得携带编号
+   - **标题必须使用一级Markdown标题**（以"# "开头，例如"# 视觉语言模型技术最新发展综述"），不带任何编号
+   - 从摘要开始，所有章节标题需采用"## N 标题"形式编号（例如"## 2 摘要"、"## 3 引言"），子章节继续编号（如"### 3.1 研究背景"）
+   - "参考文献"章节标题必须写作"## 参考文献"，不得携带编号
    - 表格使用Markdown表格格式（| 列1 | 列2 |）
 
 2. **写作风格**：
@@ -317,12 +319,21 @@ The review must include the following sections (in order), each section must hav
 1. **Title**
    - Use clear, professional academic title
    - Format: Technology Name + "Latest Development Review" or similar
+   - **Must use a level-one Markdown heading** (starting with "# ", e.g., "# Vision-Language Models: Recent Advances Review"), with no numbering
 
 2. **Abstract** (300-400 words)
    - First paragraph: Briefly introduce the research field background and importance
    - Second paragraph: Overview the main content and methods of the review
    - Third paragraph: Summarize main findings and future prospects
-   - After the abstract, add a standalone line “Index Terms—Term1, Term2, …” listing 3-5 technical terms (e.g., Transformer, classification, computer vision) separated by commas, ensuring the first term is capitalized
+   - After the abstract, add a standalone line "Index Terms—Term1, Term2, …" listing 3-5 technical terms separated by commas
+   - **Index Terms capitalization rules (CRITICAL)**:
+     * Only the first term's first letter must be capitalized (e.g., "Transformer")
+     * All subsequent terms must be in lowercase (e.g., "self-attention", "large language models", "multimodal learning", "pre-training")
+     * Professional abbreviations must retain their original format (e.g., "VLA", "mAP", "ML", "AI", "NLP", "CNN", "RNN")
+     * Example: "Index Terms—Transformer, self-attention, large language models, multimodal learning, pre-training" (correct)
+     * Example: "Index Terms—Transformer, Self-Attention, Large Language Models, Multimodal Learning, Pre-training" (incorrect)
+     * Example: "Index Terms—Transformer, multimodal learning, pre-training, CNN" (correct)
+     * Example: "Index Terms—Transformer, multimodal learning, Pre-training, cnn" (incorrect)
 
 3. **Introduction** (600-800 words, must include the following subsections)
    - **Research Background and Significance**: Detailed introduction to the research field background, importance, and application value
@@ -427,8 +438,9 @@ The review must include the following sections (in order), each section must hav
 
 1. **Markdown Format**:
    - Use standard Markdown format
-   - Number top-level sections as “## N Title” (e.g., “## 2 Technical Background”) and number subsections accordingly (e.g., “### 2.1 Early Methods”)
-   - The references section heading must be “## References” without a numeric prefix
+   - **The title must use a level-one Markdown heading** (starting with "# ", e.g., "# Vision-Language Models: Recent Advances Review"), with no numbering
+   - Starting from the Abstract, all section headings must use numbered level-two headings in the form "## N Title" (e.g., "## 2 Abstract", "## 3 Introduction"), and subsections continue numbering (e.g., "### 3.1 Research Background")
+   - The references section heading must be "## References" without a numeric prefix
    - Tables use Markdown table format (| Column1 | Column2 |)
 
 2. **Writing Style**:
