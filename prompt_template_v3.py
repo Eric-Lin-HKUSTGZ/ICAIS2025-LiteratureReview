@@ -132,7 +132,7 @@ Key Information Points:
 def get_literature_review_generation_prompt(query: str, knowledge_plan: str, language: str = 'en') -> str:
     """阶段2：文献综述生成Prompt - v3版本强调章节完整性与引用规范"""
     if language == 'zh':
-        prompt = f"""你是一位资深的学术研究专家。请基于以下查询与知识规划，生成一篇3000-3800字的高质量文献综述，并确保具备严谨的章节结构、叙述型引用以及规范的参考文献列表。
+        prompt = f"""你是一位资深的学术研究专家。请基于以下查询与知识规划，生成一篇5000-6000字的高质量文献综述，并确保具备严谨的章节结构、叙述型引用以及规范的参考文献列表。
 
 用户查询：{query}
 
@@ -142,15 +142,15 @@ def get_literature_review_generation_prompt(query: str, knowledge_plan: str, lan
 ### 一、章节与篇幅要求（必须严格遵守）
 综述须按以下顺序组织，每章必须以带数字的标题呈现（示例：“## 2 模型与架构演进”、“### 2.1 自注意力机制”），但“参考文献”章节标题禁止带数字（直接写“## 参考文献”）；各部分写作范围不可显著低于要求长度：
 1. **标题**：学术化且包含技术关键词，必须使用Markdown一级标题（以“# ”开头）。
-2. **摘要（约300-350字）**：三段式撰写，说明背景、核心贡献与关键结论；摘要结尾另起一行写“索引词—关键词1, 关键词2, …”列出3-5个关键词。
-3. **引言（约400-500字）**：涵盖背景价值、研究动机、综述范围与章节组织。
-4. **历史基础与代表性里程碑（约450-550字）**：按时间线概述关键模型/算法，突出突破点。
-5. **模型与架构演进（约500-600字）**：对比不同架构范式（如基于CNN、Transformer、基础模型），至少包含一张Markdown表格对比结构、代表工作、优势与局限。
-6. **训练策略与算法方法（约450-550字）**：讨论预训练、对齐、指令调优等方法论，并用另一张表格总结策略与典型模型。
-7. **应用与系统落地（约450-550字）**：选择≥3个应用领域（如医疗、自动驾驶、多模态对话），说明任务场景、性能指标与实际案例。
-8. **评估体系与实验观察（约350-450字）**：梳理指标、基准数据集，解释性能差异。
-9. **挑战与未来展望（约350-450字）**：分条说明技术瓶颈、开放问题与趋势。
-10. **总结（约200字）**：概括核心发现与研究建议。
+2. **摘要（约400-450字）**：三段式撰写，说明背景、核心贡献与关键结论；摘要结尾另起一行写“关键词—关键词1, 关键词2, …”列出3-5个技术性术语（如Transformer, classification, computer vision），关键词之间以英文逗号隔开；若综述语言为英文，首个关键词首字母必须大写。
+3. **引言（约650-750字）**：涵盖背景价值、研究动机、综述范围与章节组织。
+4. **历史基础与代表性里程碑（约700-800字）**：按时间线概述关键模型/算法，突出突破点。
+5. **模型与架构演进（约800-900字）**：对比不同架构范式（如基于CNN、Transformer、基础模型），至少包含一张Markdown表格对比结构、代表工作、优势与局限，并提供关键参数或性能数据。
+6. **训练策略与算法方法（约700-800字）**：讨论预训练、对齐、指令调优等方法论，并用另一张表格总结策略与典型模型，突出性能或效率提升。
+7. **应用与系统落地（约700-800字）**：选择≥3个应用领域（如医疗、自动驾驶、多模态对话），说明任务场景、性能指标与实际案例。
+8. **评估体系与实验观察（约500-600字）**：梳理指标、基准数据集，解释性能差异。
+9. **挑战与未来展望（约500-600字）**：分条说明技术瓶颈、开放问题与趋势。
+10. **总结（约250-300字）**：概括核心发现与研究建议。
 11. **参考文献**：标题必须写作“## 参考文献”且不带编号；列出与正文引用一一对应的文献，数量不少于10条。
 
 ### 二、叙述型引用规则（CRITICAL）
@@ -175,13 +175,13 @@ def get_literature_review_generation_prompt(query: str, knowledge_plan: str, lan
 
 ### 五、输出格式
 - 使用Markdown，文章首行必须是一级标题（例如“# Vision Transformers: …”）。除“参考文献”外的后续章节标题用“##”并在标题中显式编号（如“## 3 历史基础与代表性里程碑”）；子标题使用“###/####”并继续编号（如“### 3.2 Transformer关键突破”）。参考文献标题写“## 参考文献”，不得包含编号。
-- 在“摘要”章节末尾单独一行写出“索引词—关键词1, 关键词2, …”。
+- 在“摘要”章节末尾单独一行写出“关键词—关键词1, 关键词2, …”。
 - 表格使用标准Markdown语法。
 - 直接输出综述内容，无额外解释性文字。
 
 请严格依照上述规格生成综述。"""
     else:
-        prompt = f"""You are a senior academic researcher. Using the query and knowledge plan below, craft a 2,000-2,300 word literature review that features well-defined sections, narrative in-text citations, and formally formatted references.
+        prompt = f"""You are a senior academic researcher. Using the query and knowledge plan below, craft a 5,000-6,000 word literature review that features well-defined sections, narrative in-text citations, and formally formatted references.
 
 User Query: {query}
 
@@ -191,15 +191,15 @@ Knowledge Plan:
 ### 1. Section Blueprint (follow the order exactly)
 All top-level headings must be numbered (e.g., “## 2 Architectural Advances”), and sub-sections should inherit numbering such as “### 2.1 Self-Attention”. The only exception is the References section, whose heading must be `## References` without any leading number.
 1. **Title** – scholarly and keyword-rich, rendered as a level-one Markdown heading (`# Title`).
-2. **Abstract (200-230 words)** – three paragraphs covering background, summary of coverage/method, and key findings; after the paragraphs add a standalone line “Index Terms—Term1, Term2, …” listing 3-5 keywords.
-3. **Introduction (250-300 words)** – motivate the topic, clarify scope, preview the structure.
-4. **Historical Foundations & Milestones (250-300 words)** – chronological narrative of seminal work with explicit breakthroughs.
-5. **Architectural Advances (300-350 words)** – contrast major paradigms (e.g., CNN, Transformer, foundation models). Include at least one Markdown table enumerating architecture family, representative papers, strengths, limitations.
-6. **Training Strategies & Algorithmic Techniques (250-300 words)** – cover pre-training, alignment, instruction tuning, optimization tricks. Provide another table summarizing strategies vs. signature contributions.
-7. **Application Domains & Systems (250-300 words)** – detail ≥3 application areas with scenario description, metrics, and case studies.
-8. **Evaluation Protocols & Empirical Insights (200-250 words)** – describe metrics, datasets, comparative results, highlighting quantitative trends.
-9. **Challenges and Future Outlook (200-250 words)** – enumerate open issues, research gaps, and near-term opportunities.
-10. **Conclusion (120-150 words)** – synthesize insights and actionable recommendations.
+2. **Abstract (400-450 words)** – three paragraphs covering background, summary of coverage/method, and key findings; after the paragraphs add a standalone line “Index Terms—Term1, Term2, …” listing 3-5 technical terms (e.g., Transformer, classification, computer vision) separated by commas, ensuring the first term is capitalized.
+3. **Introduction (650-750 words)** – motivate the topic, clarify scope, preview the structure.
+4. **Historical Foundations & Milestones (700-800 words)** – chronological narrative of seminal work with explicit breakthroughs.
+5. **Architectural Advances (800-900 words)** – contrast major paradigms (e.g., CNN, Transformer, foundation models). Include at least one Markdown table enumerating architecture family, representative papers, strengths, limitations, and at least one quantitative metric (e.g., parameter count, accuracy).
+6. **Training Strategies & Algorithmic Techniques (700-800 words)** – cover pre-training, alignment, instruction tuning, optimization tricks. Provide another table summarizing strategies vs. signature contributions and highlight concrete performance or efficiency gains.
+7. **Application Domains & Systems (700-800 words)** – detail ≥3 application areas with scenario description, datasets, deployment status, and cite concrete metrics (e.g., BLEU, CIDEr, VQA accuracy, latency) plus representative case studies.
+8. **Evaluation Protocols & Empirical Insights (500-600 words)** – describe metrics, datasets, comparative results, highlighting quantitative trends and trade-offs.
+9. **Challenges and Future Outlook (500-600 words)** – enumerate open issues, research gaps, and near-term opportunities.
+10. **Conclusion (250-300 words)** – synthesize insights and actionable recommendations.
 11. **References** – heading must be written as “## References” (no numeric prefix) and list ≥10 entries aligned with in-text citations.
 
 ### 2. Narrative Citation Rules (CRITICAL)
@@ -218,7 +218,8 @@ Guidelines:
 
 ### 4. Content & Evidence Requirements
 - Mention at least 12 concrete models/algorithms with years and distinguishing contributions.
-- Provide quantitative evidence (metrics, parameter counts, benchmark scores) in the Applications or Evaluation sections.
+- Provide at least two distinct paragraphs that include quantitative evidence (metrics, parameter counts, benchmark scores) — one in Architectural Advances or Training Strategies, and one in Applications or Evaluation — to ensure the review cites concrete performance data.
+- In Application Domains & Systems, for each highlighted area give datasets, KPIs, and a real deployment or prototype case to avoid generic descriptions.
 - Maintain logical transitions from history → methods → applications → challenges → outlook.
 - Academic tone only; avoid first-person or process commentary.
 

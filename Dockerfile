@@ -11,11 +11,11 @@ COPY requirements.txt .
 # 使用清华镜像源安装依赖
 RUN pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple -r requirements.txt
 
-# 复制所有Python模块文件（v3方案）
-COPY api_service_v3.py .
-COPY review_generator_v3.py .
-COPY prompt_template_v3.py .
-# 复制基础依赖文件（v3方案复用）
+# 复制所有Python模块文件（v4方案）
+COPY api_service_v4.py .
+COPY review_generator_v4.py .
+COPY prompt_template_v4.py .
+# 复制基础依赖文件（v4方案复用）
 COPY config.py .
 COPY llm_client.py .
 
@@ -23,5 +23,5 @@ COPY llm_client.py .
 EXPOSE 3000
 
 # 运行API服务
-CMD ["uvicorn", "api_service_v3:app", "--host", "0.0.0.0", "--port", "3000", "--log-level", "info", "--access-log"]
+CMD ["uvicorn", "api_service_v4:app", "--host", "0.0.0.0", "--port", "3000", "--log-level", "info", "--access-log"]
 
