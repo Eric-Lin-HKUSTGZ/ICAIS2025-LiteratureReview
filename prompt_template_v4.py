@@ -143,6 +143,13 @@ def get_literature_review_generation_prompt(query: str, knowledge_plan: str, lan
 
 ## 结构要求（必须严格遵守）
 
+**重要格式说明**：
+- 主标题（一级标题）：使用"# 标题"格式，不带编号
+- 摘要标题：使用"## 摘要"格式，**不得添加任何数字编号**
+- 章节大标题（二级标题）：从引言开始使用"## N. 标题"格式（例如"## 1. 引言"、"## 2. 核心架构/技术演进"），注意编号后必须有英文句点且从1开始顺序递增
+- 子章节标题（三级标题）：使用"### N.N 标题"格式（例如"### 1.1 任务定义"、"### 2.1 研究背景"），注意编号后没有英文句点
+- 表格标题：每个表格必须包含标题，格式为两行，第一行中文"表 N 标题内容"，第二行英文"Table N Title content"，两行之间用空行分隔，表格标题放在表格上方
+
 综述必须包含以下章节（按顺序），每个章节都要有充分的子章节和详细内容：
 
 1. **标题**
@@ -150,59 +157,59 @@ def get_literature_review_generation_prompt(query: str, knowledge_plan: str, lan
    - 格式：技术名称 + "技术最新发展综述" 或类似表述
    - **必须使用一级Markdown标题**（以"# "开头，例如"# 视觉语言模型技术最新发展综述"），不带任何编号
 
-2. **摘要**（300-400字）
+2. **摘要**（300-400字，标题必须写作“## 摘要”，不可带编号）
    - 第一段：简要介绍研究领域的背景和重要性
    - 第二段：概述综述的主要内容和方法
    - 第三段：总结主要发现和未来展望
    - 摘要末尾需另起一行写“关键词—关键词1, 关键词2, …”，限定为3-5个技术术语（如Transformer, classification, computer vision），关键词之间用英文逗号分隔；若综述为英文，首个关键词首字母必须大写
 
-3. **引言**（600-800字，必须包含以下子章节）
+3. **引言**（600-800字，必须包含以下子章节，章节标题写作“## 1. 引言”）
    - **研究背景与意义**：详细介绍研究领域的背景、重要性和应用价值
    - **技术发展现状概述**：概述当前技术发展的主要特征和趋势
    - **综述范围与组织结构**：说明本综述的范围、组织结构和各章节内容
 
-4. **核心架构/技术演进**（1200-1500字，必须包含以下子章节）
+4. **核心架构/技术演进**（1200-1500字，必须包含以下子章节，章节标题写作“## 2. 核心架构/技术演进”）
    - **早期方法回顾**：详细介绍早期技术方法（如2015-2019年的代表性工作）
    - **关键技术突破历程**：按时间顺序梳理关键突破节点（2017年Transformer、2020年CLIP、2021-2023年各重要模型）
    - **最新架构设计**：详细分析当前主流架构类型（融合编码器、LLM扩展、统一架构等）
    - **技术演进脉络分析**：从技术路线、模型规模、应用场景等维度分析演进规律
-   - **必须包含对比表格**：至少一个表格对比不同架构类型的特点（架构类型、代表模型、核心特点、优势、局限性）
+   - **必须包含对比表格**：至少一个表格对比不同架构类型的特点（架构类型、代表模型、核心特点、优势、局限性），表格标题格式为两行：第一行中文"表 N 标题内容"，第二行英文"Table N Title content"，两行之间用空行分隔
 
-5. **核心技术方法论**（1000-1200字，必须包含以下子章节）
+5. **核心技术方法论**（1000-1200字，必须包含以下子章节，章节标题写作“## 3. 核心技术方法论”）
    - **预训练策略与方法**：详细介绍对比学习、掩码建模、生成式预训练等方法
    - **多模态融合机制**：分析早期融合、中期融合、晚期融合以及交叉注意力机制
    - **跨模态对齐技术**：介绍全局对齐、细粒度对齐等方法
    - **指令跟随与推理能力**：分析指令调优、思维链、多步推理等技术
    - **模型扩展与优化技术**：介绍模型压缩、推理加速、训练优化等方法
-   - **必须包含对比表格**：至少一个表格对比不同方法的特点
+   - **必须包含对比表格**：至少一个表格对比不同方法的特点，表格标题格式为两行：第一行中文"表 N 标题内容"，第二行英文"Table N Title content"，两行之间用空行分隔
 
-6. **特定场景与应用**（800-1000字，必须包含以下子章节）
+6. **特定场景与应用**（800-1000字，必须包含以下子章节，章节标题写作“## 4. 特定场景与应用”）
    - **图像描述与生成场景**：详细介绍该场景的技术实现、性能表现和应用案例
    - **视觉问答与推理场景**：分析VQA任务的技术挑战和解决方案
    - **多模态对话系统**：介绍对话系统的架构和评估方法
    - **文档理解与处理**：分析文档理解的技术特点和应用
-   - **必须包含性能对比表格**：至少一个表格展示不同模型在基准测试上的性能数据
+   - **必须包含性能对比表格**：至少一个表格展示不同模型在基准测试上的性能数据，表格标题格式为两行：第一行中文"表 N 标题内容"，第二行英文"Table N Title content"，两行之间用空行分隔
 
-7. **评估与对比分析**（600-800字，必须包含以下子章节）
+7. **评估与对比分析**（600-800字，必须包含以下子章节，章节标题写作“## 5. 评估与对比分析”）
    - **评估指标体系**：介绍任务导向型、能力导向型、鲁棒性评估等
    - **主流方法性能对比**：对比主要模型在关键基准测试上的表现
    - **基准测试结果分析**：深入分析不同模型在不同任务上的表现差异
    - **消融实验综述**：总结关键组件的贡献度分析
-   - **必须包含性能对比表格**：至少一个表格展示模型性能对比数据
+   - **必须包含性能对比表格**：至少一个表格展示模型性能对比数据，表格标题格式为两行：第一行中文"表 N 标题内容"，第二行英文"Table N Title content"，两行之间用空行分隔
 
-8. **挑战与未来方向**（600-800字，必须包含以下子章节）
+8. **挑战与未来方向**（600-800字，必须包含以下子章节，章节标题写作“## 6. 挑战与未来方向”）
    - **当前技术局限性**：深入分析计算效率、对齐精度、数据质量、可解释性等问题
    - **未解决的关键问题**：讨论跨模态语义鸿沟、知识推理、幻觉、安全性等问题
    - **未来研究方向展望**：从架构创新、理解深度、安全可信、持续学习等维度展望
    - **创新机遇与应用前景**：分析各应用领域的发展潜力和挑战
-   - **必须包含应用领域对比表格**：至少一个表格对比不同应用领域的特点
+   - **必须包含应用领域对比表格**：至少一个表格对比不同应用领域的特点，表格标题格式为两行：第一行中文"表 N 标题内容"，第二行英文"Table N Title content"，两行之间用空行分隔
 
-9. **总结**（300-400字）
+9. **总结**（300-400字，章节标题写作“## 7. 总结”）
    - **主要发现总结**：系统总结技术发展的关键发现
    - **技术发展趋势**：概括技术演进的主要趋势
    - **研究建议与展望**：提出未来研究建议和展望
 
-10. **参考文献**
+10. **参考文献**（章节标题必须写作“## 参考文献”）
     - 列出至少15-20篇代表性论文
     - “参考文献”章节标题必须写作“## 参考文献”，不得带编号
     - 参考条目采用IEEE风格：[n] F. Rosenblatt, *The Perceptron, a Perceiving and Recognizing Automaton*. Cornell Aeronautical Lab., Buffalo, NY, USA, 1957.
@@ -231,12 +238,17 @@ def get_literature_review_generation_prompt(query: str, knowledge_plan: str, lan
      * 应用领域对比表（应用领域、技术需求、当前成熟度、发展潜力、主要挑战）
    - 表格要清晰、专业，包含关键对比维度
    - 表格数据要准确，与正文描述一致
+   - **每个表格必须包含标题**，标题格式为两行：
+     * 第一行：中文标题，格式为"表 N 标题内容"（例如"表 1 四种小样本目标检测方法算法的对比分析"）
+     * 第二行：英文标题，格式为"Table N Title content"（例如"Table 1 Comparisons of the four methods for few-shot object detection algorithms"）
+     * 两行之间用空行分隔，表格标题放在表格上方
 
 4. **章节组织**（继承Modex的优点）：
    - 每个主要章节都要有清晰的子章节
    - 子章节要有明确的标题和层次结构
    - 内容要有逻辑递进关系
-   - 使用Markdown格式的二级标题（##）和三级标题（###）
+   - 大标题使用"## N. 标题"格式（例如"## 2. 摘要"、"## 3. 引言"），注意编号后必须有英文句点
+   - 子章节标题使用"### N.N 标题"格式（例如"### 2.1 任务定义"、"### 3.1 研究背景"），注意编号后没有英文句点
 
 5. **逻辑性和连贯性**：
    - 从历史演进到当前状态再到未来趋势，逻辑清晰
@@ -260,9 +272,15 @@ def get_literature_review_generation_prompt(query: str, knowledge_plan: str, lan
 1. **Markdown格式**：
    - 使用标准Markdown格式
    - **标题必须使用一级Markdown标题**（以"# "开头，例如"# 视觉语言模型技术最新发展综述"），不带任何编号
-   - 从摘要开始，所有章节标题需采用"## N 标题"形式编号（例如"## 2 摘要"、"## 3 引言"），子章节继续编号（如"### 3.1 研究背景"）
+   - 摘要标题必须写作"## 摘要"，不可带编号
+   - 从引言开始，所有章节大标题需采用"## N. 标题"形式编号（例如"## 1. 引言"、"## 2. 核心架构/技术演进"），注意编号后必须有英文句点
+   - 子章节标题需采用"### N.N 标题"形式编号（例如"### 1.1 任务定义"、"### 2.1 研究背景"），注意编号后没有英文句点
    - "参考文献"章节标题必须写作"## 参考文献"，不得携带编号
    - 表格使用Markdown表格格式（| 列1 | 列2 |）
+   - **表格标题格式（重要）**：每个表格必须包含标题，标题格式为两行：
+     * 第一行：中文标题，格式为"表 N 标题内容"（例如"表 1 四种小样本目标检测方法算法的对比分析"）
+     * 第二行：英文标题，格式为"Table N Title content"（例如"Table 1 Comparisons of the four methods for few-shot object detection algorithms"）
+     * 两行之间用空行分隔，表格标题放在表格上方
 
 2. **写作风格**：
    - 直接开始内容，不要包含"当然"、"根据"、"希望这份总结对您有帮助"等介绍性或结束性短语
@@ -321,7 +339,7 @@ The review must include the following sections (in order), each section must hav
    - Format: Technology Name + "Latest Development Review" or similar
    - **Must use a level-one Markdown heading** (starting with "# ", e.g., "# Vision-Language Models: Recent Advances Review"), with no numbering
 
-2. **Abstract** (300-400 words)
+2. **Abstract** (300-400 words, heading must be written exactly as "## Abstract" without any numbering)
    - First paragraph: Briefly introduce the research field background and importance
    - Second paragraph: Overview the main content and methods of the review
    - Third paragraph: Summarize main findings and future prospects
@@ -335,53 +353,59 @@ The review must include the following sections (in order), each section must hav
      * Example: "Index Terms—Transformer, multimodal learning, pre-training, CNN" (correct)
      * Example: "Index Terms—Transformer, multimodal learning, Pre-training, cnn" (incorrect)
 
-3. **Introduction** (600-800 words, must include the following subsections)
-   - **Research Background and Significance**: Detailed introduction to the research field background, importance, and application value
-   - **Current State of Technology Development**: Overview of main characteristics and trends in current technology development
-   - **Review Scope and Organization**: Explain the scope, organization, and content of each section
+3. **Introduction** (600-800 words, must include the following subsections; heading must follow the format "## I. Introduction")
+   - Subsection heading format: use "### A./B./C." in the exact order below
+   - **Research Background and Significance**: Detailed introduction to the research field background, importance, and application value (subheading written as "### A. Research Background and Significance")
+   - **Current State of Technology Development**: Overview of main characteristics and trends in current technology development (subheading written as "### B. Current State of Technology Development")
+   - **Review Scope and Organization**: Explain the scope, organization, and content of each section (subheading written as "### C. Review Scope and Organization")
 
-4. **Core Architecture/Technical Evolution** (1200-1500 words, must include the following subsections)
-   - **Early Methods Review**: Detailed introduction to early technical methods (e.g., representative works from 2015-2019)
-   - **Key Technical Breakthrough Timeline**: Chronologically organize key breakthrough points (Transformer 2017, CLIP 2020, important models 2021-2023)
-   - **Latest Architecture Design**: Detailed analysis of current mainstream architecture types (fusion encoders, LLM extensions, unified architectures, etc.)
-   - **Technical Evolution Analysis**: Analyze evolution patterns from technical routes, model scale, application scenarios, etc.
+4. **Core Architecture/Technical Evolution** (1200-1500 words, must include the following subsections; heading must follow the format "## II. Core Architecture/Technical Evolution")
+   - Subsection heading format: use "### A./B./C./D." in the exact order below
+   - **Early Methods Review**: Detailed introduction to early technical methods (e.g., representative works from 2015-2019) — subheading written as "### A. Early Methods Review"
+   - **Key Technical Breakthrough Timeline**: Chronologically organize key breakthrough points (Transformer 2017, CLIP 2020, important models 2021-2023) — subheading written as "### B. Key Technical Breakthrough Timeline"
+   - **Latest Architecture Design**: Detailed analysis of current mainstream architecture types (fusion encoders, LLM extensions, unified architectures, etc.) — subheading written as "### C. Latest Architecture Design"
+   - **Technical Evolution Analysis**: Analyze evolution patterns from technical routes, model scale, application scenarios, etc. — subheading written as "### D. Technical Evolution Analysis"
    - **Must include comparison table**: At least one table comparing characteristics of different architecture types (architecture type, representative models, core features, advantages, limitations)
 
-5. **Core Technical Methodologies** (1000-1200 words, must include the following subsections)
-   - **Pre-training Strategies and Methods**: Detailed introduction to contrastive learning, masked modeling, generative pre-training, etc.
-   - **Multimodal Fusion Mechanisms**: Analyze early fusion, mid-level fusion, late fusion, and cross-attention mechanisms
-   - **Cross-modal Alignment Techniques**: Introduce global alignment, fine-grained alignment, etc.
-   - **Instruction Following and Reasoning Capabilities**: Analyze instruction tuning, chain-of-thought, multi-step reasoning, etc.
-   - **Model Scaling and Optimization Techniques**: Introduce model compression, inference acceleration, training optimization, etc.
+5. **Core Technical Methodologies** (1000-1200 words, must include the following subsections; heading must follow the format "## III. Core Technical Methodologies")
+   - Subsection heading format: use "### A./B./C./D./E." in the exact order below
+   - **Pre-training Strategies and Methods**: Detailed introduction to contrastive learning, masked modeling, generative pre-training, etc. — subheading written as "### A. Pre-training Strategies and Methods"
+   - **Multimodal Fusion Mechanisms**: Analyze early fusion, mid-level fusion, late fusion, and cross-attention mechanisms — subheading written as "### B. Multimodal Fusion Mechanisms"
+   - **Cross-modal Alignment Techniques**: Introduce global alignment, fine-grained alignment, etc. — subheading written as "### C. Cross-modal Alignment Techniques"
+   - **Instruction Following and Reasoning Capabilities**: Analyze instruction tuning, chain-of-thought, multi-step reasoning, etc. — subheading written as "### D. Instruction Following and Reasoning Capabilities"
+   - **Model Scaling and Optimization Techniques**: Introduce model compression, inference acceleration, training optimization, etc. — subheading written as "### E. Model Scaling and Optimization Techniques"
    - **Must include comparison table**: At least one table comparing characteristics of different methods
 
-6. **Specific Scenarios and Applications** (800-1000 words, must include the following subsections)
-   - **Image Captioning and Generation Scenarios**: Detailed introduction to technical implementation, performance, and application cases
-   - **Visual Question Answering and Reasoning Scenarios**: Analyze technical challenges and solutions for VQA tasks
-   - **Multimodal Dialogue Systems**: Introduce dialogue system architectures and evaluation methods
-   - **Document Understanding and Processing**: Analyze technical characteristics and applications of document understanding
+6. **Specific Scenarios and Applications** (800-1000 words, must include the following subsections; heading must follow the format "## IV. Specific Scenarios and Applications")
+   - Subsection heading format: use "### A./B./C./D." in the exact order below
+   - **Image Captioning and Generation Scenarios**: Detailed introduction to technical implementation, performance, and application cases — subheading written as "### A. Image Captioning and Generation Scenarios"
+   - **Visual Question Answering and Reasoning Scenarios**: Analyze technical challenges and solutions for VQA tasks — subheading written as "### B. Visual Question Answering and Reasoning Scenarios"
+   - **Multimodal Dialogue Systems**: Introduce dialogue system architectures and evaluation methods — subheading written as "### C. Multimodal Dialogue Systems"
+   - **Document Understanding and Processing**: Analyze technical characteristics and applications of document understanding — subheading written as "### D. Document Understanding and Processing"
    - **Must include performance comparison table**: At least one table showing performance data of different models on benchmark tests
 
-7. **Evaluation and Comparative Analysis** (600-800 words, must include the following subsections)
-   - **Evaluation Index System**: Introduce task-oriented, capability-oriented, robustness evaluation, etc.
-   - **Mainstream Methods Performance Comparison**: Compare performance of main models on key benchmark tests
-   - **Benchmark Test Results Analysis**: In-depth analysis of performance differences of different models on different tasks
-   - **Ablation Study Summary**: Summarize contribution analysis of key components
+7. **Evaluation and Comparative Analysis** (600-800 words, must include the following subsections; heading must follow the format "## V. Evaluation and Comparative Analysis")
+   - Subsection heading format: use "### A./B./C./D." in the exact order below
+   - **Evaluation Index System**: Introduce task-oriented, capability-oriented, robustness evaluation, etc. — subheading written as "### A. Evaluation Index System"
+   - **Mainstream Methods Performance Comparison**: Compare performance of main models on key benchmark tests — subheading written as "### B. Mainstream Methods Performance Comparison"
+   - **Benchmark Test Results Analysis**: In-depth analysis of performance differences of different models on different tasks — subheading written as "### C. Benchmark Test Results Analysis"
+   - **Ablation Study Summary**: Summarize contribution analysis of key components — subheading written as "### D. Ablation Study Summary"
    - **Must include performance comparison table**: At least one table showing model performance comparison data
 
-8. **Challenges and Future Directions** (600-800 words, must include the following subsections)
-   - **Current Technical Limitations**: In-depth analysis of computational efficiency, alignment accuracy, data quality, interpretability, etc.
-   - **Unresolved Key Issues**: Discuss cross-modal semantic gaps, knowledge reasoning, hallucinations, safety, etc.
-   - **Future Research Directions**: Look forward from architecture innovation, understanding depth, safety and trustworthiness, continuous learning, etc.
-   - **Innovation Opportunities and Application Prospects**: Analyze development potential and challenges in various application fields
+8. **Challenges and Future Directions** (600-800 words, must include the following subsections; heading must follow the format "## VI. Challenges and Future Directions")
+   - Subsection heading format: use "### A./B./C./D." in the exact order below
+   - **Current Technical Limitations**: In-depth analysis of computational efficiency, alignment accuracy, data quality, interpretability, etc. — subheading written as "### A. Current Technical Limitations"
+   - **Unresolved Key Issues**: Discuss cross-modal semantic gaps, knowledge reasoning, hallucinations, safety, etc. — subheading written as "### B. Unresolved Key Issues"
+   - **Future Research Directions**: Look forward from architecture innovation, understanding depth, safety and trustworthiness, continuous learning, etc. — subheading written as "### C. Future Research Directions"
+   - **Innovation Opportunities and Application Prospects**: Analyze development potential and challenges in various application fields — subheading written as "### D. Innovation Opportunities and Application Prospects"
    - **Must include application domain comparison table**: At least one table comparing characteristics of different application domains
 
-9. **Conclusion** (300-400 words)
+9. **Conclusion** (300-400 words; heading must follow the format "## VII. Conclusion")
    - **Main Findings Summary**: Systematically summarize key findings in technology development
    - **Technical Development Trends**: Summarize main trends in technical evolution
    - **Research Recommendations and Prospects**: Propose future research recommendations and prospects
 
-10. **References**
+10. **References** (heading must be exactly "## References")
     - List at least 15-20 representative papers
     - The heading must be written exactly as “## References” with no number prefix
     - Entries must follow IEEE style, e.g., “[1] F. Rosenblatt, *The Perceptron, a Perceiving and Recognizing Automaton*. Cornell Aeronautical Lab., Buffalo, NY, USA, 1957.”
@@ -439,7 +463,9 @@ The review must include the following sections (in order), each section must hav
 1. **Markdown Format**:
    - Use standard Markdown format
    - **The title must use a level-one Markdown heading** (starting with "# ", e.g., "# Vision-Language Models: Recent Advances Review"), with no numbering
-   - Starting from the Abstract, all section headings must use numbered level-two headings in the form "## N Title" (e.g., "## 2 Abstract", "## 3 Introduction"), and subsections continue numbering (e.g., "### 3.1 Research Background")
+   - The Abstract heading must be written exactly as "## Abstract" with no numeric or Roman numeral prefix
+   - Starting from the Introduction, all main section headings must use Roman numerals in the form "## I. Introduction", "## II. Core Architecture/Technical Evolution", etc., increasing sequentially
+   - Subsection headings must use uppercase letters in the form "### A. Research Background and Significance", "### B. Current State of Technology Development", etc.
    - The references section heading must be "## References" without a numeric prefix
    - Tables use Markdown table format (| Column1 | Column2 |)
 

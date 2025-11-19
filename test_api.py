@@ -280,7 +280,7 @@ def main():
   python test_api.py --url http://localhost:3000/literature_review --query "Please provide a literature review on deep learning"
 
   # 保存响应到文件
-  python test_api.py --query "请给我一份关于VLA技术最新发展的总结" --output review_result.txt
+  python test_api.py --query "What are the latest advances in transformer models?" --output review_result.txt
 
   # 启用调试模式
   python test_api.py --query "What are the latest advances in transformer models?" --debug
